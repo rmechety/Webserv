@@ -6,7 +6,7 @@
 /*   By: rmechety <rmechety@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/18 11:37:42 by rmechety          #+#    #+#             */
-/*   Updated: 2022/05/25 16:37:34 by rmechety         ###   ########.fr       */
+/*   Updated: 2022/05/26 14:35:30 by rmechety         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,13 @@ void printr(std::pair<std::string, Routes> r)
 void skipwp(std::string &str)
 {
 	int fnof = str.find_first_not_of(WHITESPACE);
-	str = str.substr(fnof, str.length() - fnof);
+	try
+	{
+		str = str.substr(fnof, str.length() - fnof);
+	}
+	catch (const std::exception &e)
+	{
+	}
 }
 
 /**
@@ -84,6 +90,15 @@ std::vector<std::string> split(std::string tosplit, std::string del)
 	std::for_each(ret.begin(), ret.end(), function_name);
 	return ret;
 }
+/**
+ * It creates a new route and adds it to the server
+ *
+ * @param serv The servers object that contains all the routes and locations.
+ * @param actual The current route that is being created.
+ * @param line the line that was read from the file
+ * @param inlocation This is a boolean that tells the program whether or not it's currently in a
+ * location.
+ */
 void createroute(servers &serv, Routes &actual, std::string &line, bool &inlocation)
 {
 	Routes r;
@@ -92,6 +107,16 @@ void createroute(servers &serv, Routes &actual, std::string &line, bool &inlocat
 	serv.pushroute(r);
 	inlocation = true;
 }
+
+/**
+ * It adds an option to a route
+ *
+ * @param serv a reference to the servers object
+ * @param actual the current route
+ * @param line the line of the file that is being read
+ *
+ * @return A pointer to the Routes object
+ */
 void addoptinroutes(servers &serv, Routes &actual, std::string &line)
 {
 	std::map<std::string, Routes>::iterator it = serv.getRoutes().find(actual.getName());
@@ -136,8 +161,10 @@ void parsefile(servers &serv, std::fstream &configfile)
 	while (std::getline(configfile, line))
 	{
 		std::cout << "line : " << line << std::endl;
-		if (line.find("{") != std::string::npos)
+		skipwp(line);
+		if (line.find("{") != std::string::npos || line.length() == 0)
 		{
+			// std::cout << "here" << std::endl;
 		}
 		else if (line.find("}") != std::string::npos)
 		{
@@ -168,11 +195,8 @@ void parsefile(servers &serv, std::fstream &configfile)
 			Command c;
 			std::string name = line.substr(0, line.find(" "));
 			std::string param = line.substr(name.length());
-			std::cout << "Name = >" << name << "<" << std::endl;
-			std::cout << "param = " << param << std::endl;
 			c.setName(name);
-			c.setParam(split(
-				line.substr(((line.find(" ") == std::string::npos) ? 0 : line.find(" "))), " "));
+			c.setParam(split(param, " "));
 			serv.pushOption(c);
 		}
 	};

@@ -1,4 +1,7 @@
 objs/
 *.o
-.vscode
+.vscode/
 webserv
+a.out
+cl
+*.out
