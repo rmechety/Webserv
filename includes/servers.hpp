@@ -6,7 +6,7 @@
 /*   By: rmechety <rmechety@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/19 12:02:42 by rmechety          #+#    #+#             */
-/*   Updated: 2022/05/26 18:48:23 by rmechety         ###   ########.fr       */
+/*   Updated: 2022/05/26 19:21:02 by rmechety         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,10 @@
 #include "vector"
 #include <netinet/in.h>
 #include <sys/socket.h>
+
+#define DEFFD -42
+#define DEFIP "0.0.0.0"
+#define DEFPORT 8080
 
 class servers
 {
@@ -34,8 +38,9 @@ class servers
 	sockaddr_in address;
 
   public:
-	servers() : name("default"), routes(), options(){};
-	servers(const servers &src) : name("default"), routes(), options()
+	servers() : name("default"), routes(), options(), port(DEFPORT), ip(DEFIP), state("stop"){};
+	servers(const servers &src)
+		: name("default"), routes(), options(), port(DEFPORT), ip(DEFIP), state("stop")
 	{
 		*this = src;
 	};
@@ -104,6 +109,23 @@ class servers
 			address.sin_family = AF_INET;
 			address.sin_addr.s_addr = INADDR_ANY;
 			address.sin_port = htons(port);
+			if (bind(servfd, (struct sockaddr *)&address, sizeof(address)) < 0)
+			{
+				perror("bind failed");
+				exit(EXIT_FAILURE);
+			}
+
+			if (listen(servfd, 3) < 0)
+			{
+				perror("listen");
+				exit(EXIT_FAILURE);
+			}
+			if ((new_socket = accept(servfd, (struct sockaddr *)&address, (socklen_t *)&addrlen)) <
+				0)
+			{
+				perror("accept");
+				exit(EXIT_FAILURE);
+			};
 		}
 
 		if (!this->isrunning())
