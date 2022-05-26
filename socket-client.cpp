@@ -6,7 +6,7 @@
 /*   By: rmechety <rmechety@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/26 15:54:32 by rmechety          #+#    #+#             */
-/*   Updated: 2022/05/26 16:42:19 by rmechety         ###   ########.fr       */
+/*   Updated: 2022/05/26 18:04:48 by rmechety         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,10 @@
 #include <arpa/inet.h>
 #include <iostream>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <string>
+
 #include <sys/socket.h>
 #include <unistd.h>
 #define PORT 8080
@@ -60,12 +63,10 @@ int main(int argc, char const *argv[])
 			std::cout << "QUIT CMD" << std::endl;
 			break;
 		}
-
-		/* code */
+		valread = read(sock, buffer, 1024);
+		printf("%s\n", buffer);
+		memset(buffer, 0, 1024);
 	}
-
-	valread = read(sock, buffer, 1024);
-	printf("%s\n", buffer);
 
 	// closing the connected socket
 	close(client_fd);

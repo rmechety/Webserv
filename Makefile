@@ -65,6 +65,11 @@ re: fclean all
 
 #My personal rules
 
+serv :
+	g++ socket-client.cpp -o client.out
+	g++ socket-serv.cpp -o serv.out
+
+
 
 git :
 	git add --all

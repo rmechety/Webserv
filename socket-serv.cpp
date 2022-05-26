@@ -6,7 +6,7 @@
 /*   By: rmechety <rmechety@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/26 15:54:57 by rmechety          #+#    #+#             */
-/*   Updated: 2022/05/26 16:50:48 by rmechety         ###   ########.fr       */
+/*   Updated: 2022/05/26 18:01:21 by rmechety         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,20 +51,17 @@ int main(int argc, char const *argv[])
 		perror("bind failed");
 		exit(EXIT_FAILURE);
 	}
-	printf("before listen\n");
 
 	if (listen(server_fd, 3) < 0)
 	{
 		perror("listen");
 		exit(EXIT_FAILURE);
 	}
-	printf("before accept");
 	if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen)) < 0)
 	{
 		perror("accept");
 		exit(EXIT_FAILURE);
 	};
-	printf("here\n");
 	while (true)
 	{
 		valread = read(new_socket, buffer, 1024);

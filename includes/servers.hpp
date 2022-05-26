@@ -6,7 +6,7 @@
 /*   By: rmechety <rmechety@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/19 12:02:42 by rmechety          #+#    #+#             */
-/*   Updated: 2022/05/24 12:55:57 by rmechety         ###   ########.fr       */
+/*   Updated: 2022/05/26 18:25:18 by rmechety         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 #include "routes.hpp"
 #include "string"
 #include "vector"
+#include <netinet/in.h>
+#include <sys/socket.h>
 
 class servers
 {
@@ -25,6 +27,11 @@ class servers
 	std::string name;
 	std::map<std::string, Routes> routes;
 	std::vector<Command> options;
+	std::string ip;
+	uint16_t port;
+	std::string state;
+	int servfd;
+	sockaddr_in address;
 
   public:
 	servers() : name("default"), routes(), options(){};
@@ -84,4 +91,37 @@ class servers
 	{
 		options = options_;
 	}
+	//
+
+	void start()
+	{
+		if (!this->isrunning())
+		{
+			state = "running";
+			return;
+		}
+	};
+	void update()
+	{
+		;
+	};
+	void stop()
+	{
+		if (this->isrunning())
+		{
+			// stop serv;
+			state = "stop";
+			return;
+		}
+	};
+	bool isrunning()
+	{
+		return (state == "running");
+	};
+	std::string status()
+	{
+		return state;
+	};
+
+	//
 };
