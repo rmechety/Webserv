@@ -6,7 +6,7 @@
 /*   By: rmechety <rmechety@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/19 12:01:34 by rmechety          #+#    #+#             */
-/*   Updated: 2022/05/24 12:39:00 by rmechety         ###   ########.fr       */
+/*   Updated: 2022/05/24 17:08:05 by rmechety         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,11 +22,11 @@ class Routes
 	std::vector<Command> option;
 
   public:
-	Routes() : name("name"), option()
-	{
-		std::cout << option.capacity() << std::endl;
-		std::cout << option.size() << std::endl;
-	};
+	Routes()
+		: name("name"), option(){
+							// std::cout << option.capacity() << std::endl;
+							// std::cout << option.size() << std::endl;
+						};
 	Routes(const Routes &src) : name("name"), option()
 	{
 		*this = src;
@@ -37,8 +37,8 @@ class Routes
 
 		name = rhs.name;
 		option = rhs.option;
-		std::cout << option.capacity() << std::endl;
-		std::cout << option.size() << std::endl;
+		// std::cout << option.capacity() << std::endl;
+		// std::cout << option.size() << std::endl;
 
 		return *this;
 	}

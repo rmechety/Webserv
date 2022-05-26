@@ -6,12 +6,14 @@
 /*   By: rmechety <rmechety@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/18 12:28:56 by rmechety          #+#    #+#             */
-/*   Updated: 2022/05/24 13:56:51 by rmechety         ###   ########.fr       */
+/*   Updated: 2022/05/24 17:05:10 by rmechety         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #pragma once
 
+#include "algorithm"
+#include "iostream"
 #include "map"
 #include "string"
 #include "vector"
@@ -71,4 +73,5 @@ std::ostream &operator<<(std::ostream &o, Command const &rhs)
 	std::vector<std::string> tmpparam = rhs.getParam();
 
 	std::for_each(tmpparam.begin(), tmpparam.end(), print);
+	return o;
 };
