@@ -6,7 +6,7 @@
 /*   By: rmechety <rmechety@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/19 12:02:42 by rmechety          #+#    #+#             */
-/*   Updated: 2022/05/26 18:25:18 by rmechety         ###   ########.fr       */
+/*   Updated: 2022/05/26 18:48:23 by rmechety         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,6 +95,17 @@ class servers
 
 	void start()
 	{
+		if (servfd < -1)
+		{
+			if ((servfd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
+				return;
+			if (setsockopt(servfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)))
+				return;
+			address.sin_family = AF_INET;
+			address.sin_addr.s_addr = INADDR_ANY;
+			address.sin_port = htons(port);
+		}
+
 		if (!this->isrunning())
 		{
 			state = "running";
