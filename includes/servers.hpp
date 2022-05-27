@@ -6,7 +6,7 @@
 /*   By: rmechety <rmechety@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/19 12:02:42 by rmechety          #+#    #+#             */
-/*   Updated: 2022/05/26 19:21:02 by rmechety         ###   ########.fr       */
+/*   Updated: 2022/05/26 21:18:22 by rmechety         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@
 #include "vector"
 #include <netinet/in.h>
 #include <sys/socket.h>
+
+#include <sys/select.h>
 
 #define DEFFD -42
 #define DEFIP "0.0.0.0"
@@ -36,6 +38,8 @@ class servers
 	std::string state;
 	int servfd;
 	sockaddr_in address;
+	// fd_set clientfds;
+	std::vector<int> clientfds;
 
   public:
 	servers() : name("default"), routes(), options(), port(DEFPORT), ip(DEFIP), state("stop"){};
@@ -120,6 +124,7 @@ class servers
 				perror("listen");
 				exit(EXIT_FAILURE);
 			}
+			int new_socket;
 			if ((new_socket = accept(servfd, (struct sockaddr *)&address, (socklen_t *)&addrlen)) <
 				0)
 			{

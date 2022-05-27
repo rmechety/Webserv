@@ -6,35 +6,26 @@
 /*   By: rmechety <rmechety@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/26 15:54:57 by rmechety          #+#    #+#             */
-/*   Updated: 2022/05/26 18:01:21 by rmechety         ###   ########.fr       */
+/*   Updated: 2022/05/27 17:30:56 by rmechety         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 // Server side C/C++ program to demonstrate Socket
 // programming
+#include <iostream>
 #include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <vector>
 #define PORT 8080
-int main(int argc, char const *argv[])
+
+void setupserv(int &server_fd, struct sockaddr_in &address)
 {
-	int server_fd, new_socket, valread;
-	struct sockaddr_in address;
+
 	int opt = 1;
-	int addrlen = sizeof(address);
-	char buffer[1024] = {0};
-	char *hello = "Hello from server";
-
-	// Creating socket file descriptor
-	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
-	{
-		perror("socket failed");
-		exit(EXIT_FAILURE);
-	}
-
 	// Forcefully attaching socket to the port 8080
 	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)))
 	{
@@ -56,23 +47,88 @@ int main(int argc, char const *argv[])
 	{
 		perror("listen");
 		exit(EXIT_FAILURE);
-	}
-	if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen)) < 0)
-	{
-		perror("accept");
-		exit(EXIT_FAILURE);
 	};
+}
+
+int main(int argc, char const *argv[])
+{
+	int server_fd, new_socket, valread;
+	char buffer[1024] = {0};
+	char *pingmsg = "Ping from server";
+	struct sockaddr_in address;
+	int addrlen = sizeof(address);
+
+	// Creating socket file descriptor
+	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
+	{
+		perror("socket failed");
+		exit(EXIT_FAILURE);
+	}
+	setupserv(server_fd, address);
+	fd_set readfds;
+
+	std::vector<int> clientfd;
+
 	while (true)
 	{
-		valread = read(new_socket, buffer, 1024);
-		printf("%s\n", buffer);
-		send(new_socket, hello, strlen(hello), 0);
-		printf("Hello message sent\n");
-		memset(buffer, 0, 1024);
+
+		int maxfd = server_fd;
+		FD_ZERO(&readfds);
+		FD_SET(server_fd, &readfds);
+
+		for (std::vector<int>::iterator it = clientfd.begin(); it != clientfd.end(); it++)
+		{
+			FD_SET(*it, &readfds);
+			if (*it > maxfd)
+				maxfd = *it;
+		}
+
+		int activity = select(maxfd + 1, &readfds, NULL, NULL, NULL);
+
+		//
+		//	watch the master socket
+		//	si un socket est set alors un evenement a eu lieu donc :
+		//	si master socket tentative de connection.
+		//	si subsocket alors message recu.
+		//
+		//
+		//	gestions des sockets a faire
+
+		if (FD_ISSET(server_fd, &readfds))
+		{
+			if ((new_socket =
+					 accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen)) < 0)
+			{
+				perror("accept");
+				exit(EXIT_FAILURE);
+			};
+			//	nouvelle connexion
+			clientfd.push_back(new_socket);
+			std::cout << "New connection : fd >" << new_socket << "<" << std::endl;
+		}
+		for (std::vector<int>::iterator it = clientfd.begin(); it != clientfd.end(); it++)
+		{
+			if (FD_ISSET(*it, &readfds))
+			{
+				valread = read(*it, buffer, 1024);
+				if (valread != 0)
+				{
+					printf("FD: %d | >%s<\n", *it, buffer);
+					send(*it, pingmsg, strlen(pingmsg), 0);
+					printf("ping message sent\n");
+					memset(buffer, 0, 1024);
+				}
+				else
+				{
+					close(*it);
+					clientfd.erase(it);
+				}
+			}
+		}
 	}
 
 	// closing the connected socket
-	close(new_socket);
+	close(server_fd);
 	// closing the listening socket
 	shutdown(server_fd, SHUT_RDWR);
 	return 0;
