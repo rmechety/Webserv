@@ -6,7 +6,7 @@
 /*   By: rmechety <rmechety@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/26 15:54:57 by rmechety          #+#    #+#             */
-/*   Updated: 2022/05/27 17:30:56 by rmechety         ###   ########.fr       */
+/*   Updated: 2022/05/29 13:06:05 by rmechety         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,7 @@ int main(int argc, char const *argv[])
 
 	std::vector<int> clientfd;
 
+	clientfd.reserve(1000);
 	while (true)
 	{
 
@@ -76,6 +77,7 @@ int main(int argc, char const *argv[])
 		FD_ZERO(&readfds);
 		FD_SET(server_fd, &readfds);
 
+		// optimiser cette bcl, la faire disparaitre et ajouter a close un clearfd
 		for (std::vector<int>::iterator it = clientfd.begin(); it != clientfd.end(); it++)
 		{
 			FD_SET(*it, &readfds);
