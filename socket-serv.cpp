@@ -6,12 +6,13 @@
 /*   By: rmechety <rmechety@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/26 15:54:57 by rmechety          #+#    #+#             */
-/*   Updated: 2022/05/29 13:06:05 by rmechety         ###   ########.fr       */
+/*   Updated: 2022/05/30 12:49:59 by rmechety         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 // Server side C/C++ program to demonstrate Socket
 // programming
+#include <algorithm>
 #include <iostream>
 #include <netinet/in.h>
 #include <stdio.h>
@@ -70,20 +71,21 @@ int main(int argc, char const *argv[])
 	std::vector<int> clientfd;
 
 	clientfd.reserve(1000);
+	FD_SET(server_fd, &readfds);
+	int maxfd = server_fd;
+
 	while (true)
 	{
 
-		int maxfd = server_fd;
-		FD_ZERO(&readfds);
-		FD_SET(server_fd, &readfds);
+		// FD_ZERO(&readfds);
 
 		// optimiser cette bcl, la faire disparaitre et ajouter a close un clearfd
-		for (std::vector<int>::iterator it = clientfd.begin(); it != clientfd.end(); it++)
-		{
-			FD_SET(*it, &readfds);
-			if (*it > maxfd)
-				maxfd = *it;
-		}
+		// for (std::vector<int>::iterator it = clientfd.begin(); it != clientfd.end(); it++)
+		// {
+		// 	FD_SET(*it, &readfds);
+		// 	if (*it > maxfd)
+		// 		maxfd = *it;
+		// }
 
 		int activity = select(maxfd + 1, &readfds, NULL, NULL, NULL);
 
@@ -106,6 +108,11 @@ int main(int argc, char const *argv[])
 			};
 			//	nouvelle connexion
 			clientfd.push_back(new_socket);
+			if (new_socket > maxfd)
+				maxfd = new_socket;
+
+			std::sort(clientfd.begin(), clientfd.end());
+
 			std::cout << "New connection : fd >" << new_socket << "<" << std::endl;
 		}
 		for (std::vector<int>::iterator it = clientfd.begin(); it != clientfd.end(); it++)
@@ -119,11 +126,20 @@ int main(int argc, char const *argv[])
 					send(*it, pingmsg, strlen(pingmsg), 0);
 					printf("ping message sent\n");
 					memset(buffer, 0, 1024);
+					FD_CLR(*it, &readfds);
+					FD_SET(*it, &readfds);
 				}
 				else
 				{
-					close(*it);
 					clientfd.erase(it);
+					if (*it == maxfd)
+						if (clientfd.size() > 0)
+							maxfd = clientfd.back();
+						else
+							maxfd = server_fd;
+
+					FD_CLR(*it, &readfds);
+					close(*it);
 				}
 			}
 		}
