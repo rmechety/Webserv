@@ -6,7 +6,7 @@
 /*   By: rmechety <rmechety@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/31 14:30:28 by rmechety          #+#    #+#             */
-/*   Updated: 2022/05/31 17:50:27 by rmechety         ###   ########.fr       */
+/*   Updated: 2022/06/01 18:06:58 by rmechety         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,12 +93,12 @@ void nonblockingfd(int sockfd)
 	flags |= O_NONBLOCK;
 	fcntl(sockfd, F_SETFL, flags);
 }
+
 /**
  * It reads data from the socket, prints it to the screen, and then writes it back to the socket
  *
  * @param event the event that triggered the callback
  */
-
 void readdata(struct epoll_event &event)
 {
 	char buf[1024];
@@ -178,6 +178,7 @@ void serv_running(int epfd, int server_fd)
 		}
 	}
 }
+
 int main(int argc, char const *argv[])
 {
 	struct sockaddr_in srv_addr;
